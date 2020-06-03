@@ -1,0 +1,67 @@
+- name: GET RUNNING CONFIGURATION
+  block:
+  - mattlab.panos.panos_config_set:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+    register: running_config_result
+  - set_fact:
+      bl_config: '{{ running_config_result.config_set }}'
+
+- name: GET CURRENT PAN-OS VERSION
+  block:
+  - paloaltonetworks.panos.panos_op:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+      cmd: show system info
+    register: system_info_result
+  - set_fact:
+      bl_rollback_version: "{{ (system_info_result.stdout | from_json)['response']['result']['system']['sw-version'] }}"        
+
+- name: GET PANORAMA CONNECTED STATUS
+  block:
+  - paloaltonetworks.panos.panos_op:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+      cmd: show panorama-status
+    register: pano_status_result
+  - set_fact:
+      bl_panorama_connected: 'yes'
+    when: (pano_status_result.stdout | from_json)['response']['result'] is defined and "'yes' in (pano_status_result.stdout | from_json)['response']['result']"
+  - set_fact:
+      bl_panorama_connected: 'no'
+    when: (pano_status_result.stdout | from_json)['response']['result'] is not defined or "'no' in (pano_status_result.stdout | from_json)['response']['result']"
+
+- name: GET INTERFACES UP LIST
+  block:
+  - paloaltonetworks.panos.panos_op:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+      cmd: show interface hardware
+    register: int_hw_result
+  - set_fact:
+      interfaces_up_list: []
+  - set_fact:
+      interfaces_up_list: "{{ interfaces_up_list }} + ['{{ item['name'] }}']"
+    when: item['state'] == 'up'
+    with_items: "{{ (int_hw_result.stdout | from_json)['response']['result']['hw']['entry'] }}"
+  - set_fact:
+      bl_interfaces_up_list: "{{ interfaces_up_list }}"
+        
+- name: GET CONNECTIVITY BASELINE VALUES
+  block:
+  - mattlab.panos.panos_ping_nexthop:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+    register: ping_nexthop_result
+  - set_fact:
+      bl_connectivity: "{{ ping_nexthop_result.packet_loss }}"
+
+- name: SAVE BASELINE FACTS TO FILE
+  template:
+    src: templates/baseline_firewall_facts.j2
+    dest: "{{ inventory_hostname }}.json"

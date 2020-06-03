@@ -1,0 +1,14 @@
+- name: RETRIEVE BASELINE FACTS
+  set_fact:
+    bl_facts: "{{ lookup('file', baseline_file) | from_json }}"
+
+- name: RUN TVT TESTS
+  mattlab.panos.panos_test:
+    ip_address: '{{ inventory_hostname }}'
+    username: '{{ pan_user }}'
+    password: '{{ pan_pass }}'
+    #test_panorama_connected: '{{ bl_facts.bl_panorama_connected }}'
+    test_interfaces_up: '{{ bl_facts.bl_interfaces_up_list }}'
+    test_config_diff: '{{ bl_facts.bl_config }}'
+    test_connectivity: '{{ bl_facts.bl_connectivity }}'
+  register: tvt_result
