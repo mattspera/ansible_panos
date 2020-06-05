@@ -207,6 +207,7 @@ def main():
         ip_address=dict(required=True),
         username=dict(default='admin'),
         password=dict(no_log=True),
+        log=dict(type='bool', default=False),
         test_devices_connected=dict(type='list'),
         test_log_collectors_connected=dict(type='list'),
         test_wf_appliances_connected=dict(type='list'),
@@ -245,11 +246,12 @@ def main():
     if not HAS_LIB:
         module.fail_json(msg='Missing required libraries: pantest')
 
-    # Lowering paramiko logging level to prevent unnecessary logging in main log file
-    logging.getLogger('paramiko').setLevel(logging.WARNING)
+    if module.params['log']:
+        # Lowering paramiko logging level to prevent unnecessary logging in main log file
+        logging.getLogger('paramiko').setLevel(logging.WARNING)
 
-    dt = datetime.now().strftime(r'%y%m%d_%H%M')
-    logging.basicConfig(filename='{}_{}_tvt.log'.format(module.params['ip_address'], dt), level=logging.INFO)
+        dt = datetime.now().strftime(r'%y%m%d_%H%M')
+        logging.basicConfig(filename='{}_{}_tvt.log'.format(module.params['ip_address'], dt), level=logging.INFO)
 
     device_info = {
         'ip' : module.params['ip_address'],
