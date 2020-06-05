@@ -39,10 +39,10 @@ h1, h2, p {
     <th>Result</th>
     <th>Changes</th> 
   </tr>
-{% for item in tvt_result_lit %}
+{% for item in tvt_result_lit %} {# for loop 1 #}
   <tr>
     <td>{{ item.name }}</td>
-{% if item.name == "t_interfaces_up" %}
+{% if item.name == "t_interfaces_up" %} {# if statement 1 #}
     <td>
     This testcase is a comparison of baseline list of interfaces 
     that is 'up' and the current interfaces that are 'up' on the 
@@ -50,7 +50,20 @@ h1, h2, p {
     If the testcase has returned a 'False' (FAIL) result, the 
     'Changes' column displays what has caused the failure.
     </td>
-{% elif item.name == "t_config_diff"  %}
+    <td>{{ item.result }}</td>
+{% if item.result == False %} {# if statement 2 #}
+    <td>
+    Interfaces Down: <br>
+    <ul>
+{% for int in item.info.interfaces_down %} {# for loop 2 #}
+        <li>{{ int }}</li>
+{% endfor %} {# for loop 2 #}
+    </ul>
+    </td>
+{% else %}
+    <td></td>
+{% endif %} {# if statement 2 #}
+{% elif item.name == "t_config_diff"  %} {# if statement 1 #}
     <td>
     This testcase is a line-by-line comparison of the baseline 
     configuration file and a snapshot of the current configuration 
@@ -59,76 +72,67 @@ h1, h2, p {
     'Changes' column displays the differences between the baseline 
     and TVT values in SET command format.
     </td>
-{% elif item.name == "t_connectivity"  %}
-    <td>
-    This testcase is a comparison between the next-hops found and 
-    their corresponding packet-liss percentage for each routing table 
-    unique next-hop pre-change (baseline) and post-change (TVT) on the 
-    firewall.    
-    </td>
-{% else %}
-    <td></td>
-{% endif %}
     <td>{{ item.result }}</td>
-{% if item.result == False %}
-{% if item.name == "t_interfaces_up" %}
-    <td>
-    Interfaces Down: <br>
-    <ul>
-{% for int in item.info.interfaces_down %}
-        <li>{{ int }}</li>
-{% endfor %}
-    </ul>
-    </td>
-{% elif item.name == "t_config_diff"  %}
+{% if item.result == False %} {# if statement 3 #}
     <td>
     Set commands added: <br>
     <ul>
-{% for cmd in item.info.config_changes.added %}
+{% for cmd in item.info.config_changes.added %} {# for loop 3 #}
         <li>{{ cmd }}</li>
-{% endfor %}
+{% endfor %} {# for loop 3 #}
     </ul>
     Set commands removed: <br>
     <ul>
-{% for cmd in item.info.config_changes.removed %}
+{% for cmd in item.info.config_changes.removed %} {# for loop 4 #}
         <li>{{ cmd }}</li>
-{% endfor %}
+{% endfor %} {# for loop 4 #}
     </ul>
     </td>
-{% elif item.name == "t_connectivity"  %}
+{% else %}
+    <td></td>
+{% endif %} {# if statement 3 #}
+{% elif item.name == "t_connectivity"  %} {# if statement 1#}
+    <td>
+    This testcase is a comparison between the next-hops found and 
+    their corresponding packet-loss percentage for each routing table 
+    unique next-hop pre-change (baseline) and post-change (TVT) on the 
+    firewall.    
+    </td>
+    <td>{{ item.result }}</td>
+{% if item.result == False %} {# if statement 4 #}
     <td>
     Nexthops added: <br>
     <ul>
-{% for nexthop in item.info.added %}
+{% for nexthop in item.info.added %} {# for loop 5 #}
         <li>{{ nexthop }}</li>
-{% endfor %}
+{% endfor %} {# for loop 5 #}
     </ul>
     Nexthops removed: <br>
     <ul>
-{% for nexthop in item.info.removed %}
+{% for nexthop in item.info.removed %} {# for loop 6 #}
         <li>{{ nexthop }}</li>
-{% endfor %}
+{% endfor %} {# for loop 6 #}
     </ul>
     Nexthops changed: <br>
     <ul>
-{% for nexthop, chg_list in item.info.changed.items() %}
+{% for nexthop, chg_list in item.info.changed.items() %} {# for loop 7 #}
         <li>{{ nexthop }}:
             <ul>
                 <li>Baseline packet loss pct: {{ chg_list[0] }}</li>
                 <li>TVT packet loss pct: {{ chg_list[1] }}</li>
             </ul>
         </li>      
-{% endfor %}
+{% endfor %} {# for loop 7 #}
     </ul>
     </td>
 {% else %}
     <td></td>
-{% endif %}
+{% endif %} {# if statement 4 #}
 {% else %}
     <td></td>
-{% endif %}
+{% endif %} {# if statement 1 #}
   </tr>
-{% endfor %}
+{% endfor %} {# for loop 1 #}
 </table>
 
 </body>
