@@ -1,0 +1,122 @@
+- name: GET RUNNING CONFIGURATION
+  block:
+  - mattlab.panos.panos_config_set:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+    register: running_config_result
+  - set_fact:
+      bl_config: '{{ running_config_result.config_set }}'
+
+- name: GET CURRENT PAN-OS VERSION
+  block:
+  - paloaltonetworks.panos.panos_op:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+      cmd: show system info
+    register: system_info_result
+  - set_fact:
+      bl_rollback_version: "{{ (system_info_result.stdout | from_json)['response']['result']['system']['sw-version'] }}"
+
+- name: GET SYNC STATUS - SHARED POLICY
+  block:
+  - paloaltonetworks.panos.panos_op:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+      cmd: show devicegroups
+    register: devicegroup_result
+  - set_fact:
+      shared_policy_sync_dict: {}
+      devicegroups_entry: "{{ (devicegroup_result.stdout | from_json)['response']['result']['devicegroups']['entry'] }}"
+  - set_fact:
+      devicegroups_entry_parsed: "{{ devicegroups_entry | dev_dict_parser }}"
+  - set_fact:
+      shared_policy_sync_dict: "{{ shared_policy_sync_dict | combine({ item.0['@name']: { item.1.hostname : { item.1.vsys.entry['@name'] : item.1.vsys.entry['shared-policy-status'] } } }, recursive=True) }}"
+    with_subelements:
+      - "{{ devicegroups_entry_parsed.output | from_json }}"
+      - devices.entry
+      - flags:
+        skip_missing: True
+    when: item.1.connected = 'yes'
+  - set_fact:
+      bl_shared_policy_sync_dict: "{{ shared_policy_sync_dict }}"
+
+- name: GET SYNC STATUS - TEMPLATE
+  block:
+  - paloaltonetworks.panos.panos_op:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+      cmd: show templates
+    register: templates_result
+  - set_fact:
+      template_sync_dict: {}
+      templates_entry: "{{ (templates_result.stdout | from_json)['response']['result']['templates']['entry'] }}"
+  - set_fact:
+      templates_entry_parsed: "{{ templates_entry | dev_dict_parser }}"
+  - set_fact:
+      template_sync_dict: "{{ template_sync_dict | combine({ item.0['@name']: { item.1.serial : item.1['template-status'] } }, recursive=True) }}"
+    with_subelements:
+      - "{{ templates_entry_parsed.output | from_json }}"
+      - devices.entry
+      - flags:
+        skip_missing: True
+  - set_fact:
+      bl_template_sync_dict: "{{ template_sync_dict }}"
+
+- name: GET LIST OF PANORAMA CONNECTED DEVICES
+  block:
+  - paloaltonetworks.panos.panos_op:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+      cmd: show devices connected
+    register: conn_devices_result
+  - set_fact:
+      devices_entry: "{{ (conn_devices_result.stdout | from_json)['response']['result']['devices']['entry'] }}"
+    when: (conn_devices_result.stdout | from_json)['response']['result']['devices'] is defined
+  - set_fact:
+      devices_connected_list: []
+  - set_fact:
+      devices_connected_list: "{{ devices_connected_list }} + ['{{ item['hostname'] }}']"
+    with_items: "{{ devices_entry }}"
+    when: (conn_devices_result.stdout | from_json)['response']['result']['devices'] is defined and devices_entry['@name'] is not defined
+  - set_fact:
+      devices_connected_list: "{{ devices_connected_list }} + ['{{ devices_entry['hostname'] }}']"
+    when: (conn_devices_result.stdout | from_json)['response']['result']['devices'] is defined and devices_entry['@name'] is defined
+  - set_fact:
+      bl_devices_connected_list: "{{ devices_connected_list }}"
+
+- name: GET LIST OF PANORAMA CONNECTED LOG COLLECTORS & CONFIG SYNC STATUS
+  block:
+  - paloaltonetworks.panos.panos_op:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+      cmd: show log-collector connected
+    register: lc_connected_result
+  - set_fact:
+      lc_entry: "{{ (lc_connected_result.stdout | from_json)['response']['result']['log-collector']['entry'] }}"
+    when: (lc_connected_result.stdout | from_json)['response']['result']['log-collector'] is defined
+  - set_fact:
+      lc_connected_list: []
+      lc_config_sync_dict: {}
+  - set_fact:
+      lc_connected_list: "{{ lc_connected_list }} + ['{{ item['host-name'] }}']"
+      lc_config_sync_dict: "{{ lc_config_sync_dict | combine({ item['host-name'] : item['config-status'] }) }}"
+    with_items: "{{ lc_entry }}"
+    when: (lc_connected_result.stdout | from_json)['response']['result']['log-collector'] is defined and lc_entry['@name'] is not defined
+  - set_fact:
+      lc_connected_list: "{{ lc_connected_list }} + ['{{ item['host-name'] }}']"
+      lc_config_sync_dict: "{{ lc_config_sync_dict | combine({ lc_entry['host-name'] : lc_entry['config-status'] }) }}"
+    when: (lc_connected_result.stdout | from_json)['response']['result']['log-collector'] is defined and lc_entry['@name'] is defined
+  - set_fact:
+      bl_lc_connected_list: "{{ lc_connected_list }}"
+      bl_lc_config_sync_dict: "{{ lc_config_sync_dict }}"
+
+- name: SAVE BASELINE FACTS TO FILE
+  template:
+    src: templates/baseline_panorama_facts.j2
+    dest: "{{ inventory_hostname }}.json"

@@ -1,0 +1,23 @@
+- name: RETRIEVE BASELINE FACTS
+  set_fact:
+    bl_facts: "{{ lookup('file', baseline_file) | from_json }}"
+
+- name: RUN TVT TESTS
+  mattlab.panos.panos_test:
+    ip_address: '{{ inventory_hostname }}'
+    username: '{{ pan_user }}'
+    password: '{{ pan_pass }}'
+    test_config_diff: '{{ bl_facts.bl_config }}'
+    test_shared_policy_sync: '{{ bl_facts.bl_shared_policy_sync_dict }}'
+    test_template_sync: '{{ bl_facts.bl_template_sync_dict }}'
+    test_connected_devices: '{{ bl_facts.bl_devices_connected_list }}'
+    test_connected_log_collectors: '{{ bl_facts.bl_lc_connected_list }}'
+    test_log_collector_config_sync: '{{ bl_facts.bl_lc_config_sync_dict }}'
+
+- set_fact:
+    tvt_result_lit: "{{ tvt_result.stdout | from_json }}"
+
+- name: SAVE TVT RESULTS TO HTML FILE
+  template:
+    src: templates/tvt_results_html.j2
+    dest: "{{ inventory_hostname }}_tvt.html"
