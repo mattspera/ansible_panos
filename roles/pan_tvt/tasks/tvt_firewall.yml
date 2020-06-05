@@ -12,3 +12,11 @@
     test_config_diff: '{{ bl_facts.bl_config }}'
     test_connectivity: '{{ bl_facts.bl_connectivity }}'
   register: tvt_result
+
+- set_fact:
+    tvt_result_lit: "{{ tvt_result.stdout | from_json }}"
+
+- name: SAVE TVT RESULTS TO HTML FILE
+  template:
+    src: templates/tvt_results_html.j2
+    dest: "{{ inventory_hostname }}_tvt.html"
