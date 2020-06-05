@@ -1,5 +1,6 @@
 *.log
 *.tar.gz
 *.json
+*.html
 playbook.yml
 inventory
