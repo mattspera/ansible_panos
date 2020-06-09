@@ -10,6 +10,7 @@
     #test_panorama_connected: '{{ bl_facts.bl_panorama_connected }}'
     test_interfaces_up: '{{ bl_facts.bl_interfaces_up_list }}'
     test_config_diff: '{{ bl_facts.bl_config }}'
+    test_routes: '{{ bl_facts.bl_route_table }}'
     test_connectivity: '{{ bl_facts.bl_connectivity }}'
   register: tvt_result
 

@@ -50,6 +50,21 @@
     with_items: "{{ (int_hw_result.stdout | from_json)['response']['result']['hw']['entry'] }}"
   - set_fact:
       bl_interfaces_up_list: "{{ interfaces_up_list }}"
+
+- name: GET ROUTE TABLE
+  block:
+  - paloaltonetworks.panos.panos_op:
+      ip_address: '{{ inventory_hostname }}'
+      username: '{{ pan_user }}'
+      password: '{{ pan_pass }}'
+      cmd: show routing route
+    register: route_table_result
+  - set_fact:
+      bl_route_table: "{{ (route_table_result.stdout | from_json)['response']['result']['entry'] }}"
+    when: "'entry' in (route_table_result.stdout | from_json)['response']['result']"
+  - set_fact:
+      bl_route_table: []
+    when: "not 'entry' in (route_table_result.stdout | from_json)['response']['result']"
         
 - name: GET CONNECTIVITY BASELINE VALUES
   block:

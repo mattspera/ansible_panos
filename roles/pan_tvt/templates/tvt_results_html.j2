@@ -91,7 +91,7 @@ h1, h2, p {
 {% else %}
     <td></td>
 {% endif %} {# if statement 3 #}
-{% elif item.name == "t_connectivity"  %} {# if statement 1#}
+{% elif item.name == "t_connectivity"  %} {# if statement 1 #}
     <td>
     This testcase is a comparison between the next-hops found and 
     their corresponding packet-loss percentage for each routing table 
@@ -128,7 +128,45 @@ h1, h2, p {
 {% else %}
     <td></td>
 {% endif %} {# if statement 4 #}
+{% elif item.name == "t_routes"  %} {# if statement 1 #}
+    <td>
+    </td>
+    <td>{{ item.result }}</td>
+{% if item.result == False %} {# if statement 5 #}
+    <td>
+    Routes added: <br>
+    <ul>
+{% for route in item.info.added %} {# for loop 6 #}
+        <li>Dest: {{ route.destination }}
+          <ul>
+            <li>nexthop: {{ route.nexthop }}</li>
+            <li>vr: {{ route.virtual_router }}</li>
+            <li>metric: {{ route.metric }}</li>
+            <li>flags: {{ route.flags }}</li>
+          </ul>
+        </li>
+{% endfor %} {# for loop 6 #}
+    </ul>
+    Routes removed: <br>
+    <ul>
+{% for route in item.info.removed %} {# for loop 7 #}
+        <li>Dest: {{ route.destination }}
+          <ul>
+            <li>nexthop: {{ route.nexthop }}</li>
+            <li>vr: {{ route.virtual_router }}</li>
+            <li>metric: {{ route.metric }}</li>
+            <li>flags: {{ route.flags }}</li>
+          </ul>
+        </li>
+{% endfor %} {# for loop 7 #}
+    </ul>
+    </td>
 {% else %}
+    <td></td>
+{% endif %} {# if statement 5 #}
+{% else %}
+    <td></td>
+    <td></td>
     <td></td>
 {% endif %} {# if statement 1 #}
   </tr>

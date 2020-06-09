@@ -225,6 +225,7 @@ def main():
         test_ha_peer_up=dict(),
         test_ha_match=dict(),
         test_ha_config_synced=dict(),
+        test_routes=dict(type='list'),
         test_connectivity=dict(),
         test_system_env_alarms_fw=dict(),
         test_ha_enabled=dict(),
@@ -335,6 +336,10 @@ def main():
 
     if module.params['test_system_env_alarms_fw']:
         output = fw_tester.t_system_env_alarms_fw(str(module.params['test_system_env_alarms_fw']))
+        test_output_list.append(output)
+
+    if module.params['test_routes']:
+        output = fw_tester.t_routes(module.params['test_routes'])
         test_output_list.append(output)
 
     if module.params['test_connectivity']:
