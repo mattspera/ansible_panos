@@ -1,8 +1,8 @@
 { 
-    "bl_config": "{{ bl_config }}", 
-    "bl_rollback_version": "{{ bl_rollback_version }}", 
-    "bl_panorama_connected": "{{ bl_panorama_connected }}",
-    "bl_interfaces_up_list": "{{ bl_interfaces_up_list }}",
-    "bl_route_table": "{{ bl_route_table }}",
-    "bl_connectivity": "{{ bl_connectivity }}" 
+    "bl_config": {{ bl_config | to_nice_json }}, 
+    "bl_rollback_version": {{ bl_rollback_version | to_nice_json }}, 
+    "bl_panorama_connected": {{ bl_panorama_connected | to_nice_json }},
+    "bl_interfaces_up_list": {{ bl_interfaces_up_list | to_nice_json }},
+    "bl_route_table": {{ bl_route_table | to_nice_json }},
+    "bl_connectivity": {{ bl_connectivity | to_nice_json }} 
 }
