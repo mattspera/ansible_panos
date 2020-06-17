@@ -77,7 +77,7 @@ try:
 except ImportError:
     HAS_LIB = False
 
-def main():
+def run_module():
     module_args = dict(
         ip_address=dict(required=True),
         username=dict(default='admin'),
@@ -173,6 +173,9 @@ def main():
     conn.disconnect()
 
     module.exit_json(**result)
+
+def main():
+    run_module()
 
 if __name__ == "__main__":
     main()

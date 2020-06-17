@@ -33,6 +33,12 @@ options:
     password:
         description:
             - Password for authentication for PAN-OS device.
+    log:
+        description:
+            - Enables pantest logging.
+            - Log file is creating in working directory.
+        type: bool
+        default: False
     test_devices_connected:
         description:
             - Panorama test.
@@ -202,7 +208,7 @@ def set_default(obj):
         return list(obj)
     raise TypeError
 
-def main():
+def run_module():
     module_args = dict(
         ip_address=dict(required=True),
         username=dict(default='admin'),
@@ -381,6 +387,9 @@ def main():
     result['message'] = 'PASS'
 
     module.exit_json(**result)
+
+def main():
+    run_module()
 
 if __name__ == '__main__':
     main()
