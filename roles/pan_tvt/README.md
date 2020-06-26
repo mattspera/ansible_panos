@@ -18,7 +18,8 @@ Role Variables
 - `baseline_file`: relative file path to save/import baseline facts to/from file (.json). Variable consumed by the following task files:
   - `baseline_firewall.yml`
   - `tvt_firewall.yml`
-- `tvt_file`: relative file path to save tvt test report to file (.html).
+- `tvt_file`: relative file path to save tvt test report to file (.html). Variable consumed by the following task files:
+  - `tvt_firewall.yml`
 
 Dependencies
 ------------
