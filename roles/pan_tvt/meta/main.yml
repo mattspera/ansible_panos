@@ -1,7 +1,6 @@
 galaxy_info:
-  author: your name
-  description: your role description
-  company: your company (optional)
+  author: Matthew Spera
+  description: Ansible Role developed to facilitate the automation of technical verification testing on Palo Alto Networks devices
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value

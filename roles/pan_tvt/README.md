@@ -1,31 +1,55 @@
-Role Name
+pan_tvt
 =========
 
-A brief description of the role goes here.
+An Ansible Role developed to facilitate the automation of technical verification testing on Palo Alto Networks devices.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+The following Python libraries are required to use this Role:
+
+- pantest (https://github.com/mattspera/pantest)
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+- `pan_user`: Palo Alto device username
+- `pan_pass`: Palo Alto device password
+- `baseline_file`: relative file path to save/import baseline facts to/from file (.json). Variable consumed by the following task files:
+  - `baseline_firewall.yml`
+  - `tvt_firewall.yml`
+- `tvt_file`: relative file path to save tvt test report to file (.html).
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+The following Ansible Collections are required to be installed as a prerequisite to using this Role:
+
+- paloaltonetworks.panos (https://galaxy.ansible.com/paloaltonetworks/panos)
+- mattlab.panos (https://github.com/mattspera/ansible_panos)
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+    - hosts: all
+      vars:
+        pan_user: "{{ ansible_user }}"
+        pan_pass: "{{ ansible_password }}"
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+      tasks:
+
+        - include_role:
+            name: pan_tvt
+            tasks_from: baseline_firewall
+          vars:
+            baseline_file: "{{ inventory_hostname }}_bl.json"
+
+        - include_role:
+            name: pan_tvt
+            tasks_from: tvt_firewall
+          vars:
+            baseline_file: "{{ inventory_hostname }}_bl.json"
+            tvt_file: "{{ inventory_hostname }}_tvt.html"
 
 License
 -------
@@ -35,4 +59,4 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Matthew Spera (@mattspera)
