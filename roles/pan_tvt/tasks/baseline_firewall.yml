@@ -78,5 +78,5 @@
 
 - name: SAVE BASELINE FACTS TO FILE
   template:
-    src: templates/baseline_firewall_facts.j2
-    dest: "{{ inventory_hostname }}.json"
+    src: baseline_firewall_facts.j2
+    dest: "{{ baseline_file }}"

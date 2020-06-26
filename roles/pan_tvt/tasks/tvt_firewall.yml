@@ -19,5 +19,5 @@
 
 - name: SAVE TVT RESULTS TO HTML FILE
   template:
-    src: templates/tvt_results_html.j2
-    dest: "{{ inventory_hostname }}_tvt.html"
+    src: tvt_results_html.j2
+    dest: "{{ tvt_file }}"
