@@ -35,7 +35,7 @@
   - set_fact:
       shared_policy_sync_dict: "{{ shared_policy_sync_dict | combine({ item.0['@name']: { item.1.hostname : { item.1.vsys.entry['@name'] : item.1.vsys.entry['shared-policy-status'] } } }, recursive=True) }}"
     with_subelements:
-      - "{{ devicegroups_entry_parsed.output | from_json }}"
+      - "{{ devicegroups_entry_parsed }}"
       - devices.entry
       - flags:
         skip_missing: True
@@ -59,7 +59,7 @@
   - set_fact:
       template_sync_dict: "{{ template_sync_dict | combine({ item.0['@name']: { item.1.serial : item.1['template-status'] } }, recursive=True) }}"
     with_subelements:
-      - "{{ templates_entry_parsed.output | from_json }}"
+      - "{{ templates_entry_parsed }}"
       - devices.entry
       - flags:
         skip_missing: True
@@ -80,11 +80,11 @@
   - set_fact:
       devices_connected_list: []
   - set_fact:
-      devices_connected_list: "{{ devices_connected_list }} + ['{{ item['hostname'] }}']"
+      devices_connected_list: "{{ devices_connected_list + [item['hostname']] }}"
     with_items: "{{ devices_entry }}"
     when: (conn_devices_result.stdout | from_json)['response']['result']['devices'] is defined and devices_entry['@name'] is not defined
   - set_fact:
-      devices_connected_list: "{{ devices_connected_list }} + ['{{ devices_entry['hostname'] }}']"
+      devices_connected_list: "{{ devices_connected_list + [devices_entry['hostname']] }}"
     when: (conn_devices_result.stdout | from_json)['response']['result']['devices'] is defined and devices_entry['@name'] is defined
   - set_fact:
       bl_devices_connected_list: "{{ devices_connected_list }}"
@@ -104,12 +104,12 @@
       lc_connected_list: []
       lc_config_sync_dict: {}
   - set_fact:
-      lc_connected_list: "{{ lc_connected_list }} + ['{{ item['host-name'] }}']"
+      lc_connected_list: "{{ lc_connected_list + [item['host-name']] }}"
       lc_config_sync_dict: "{{ lc_config_sync_dict | combine({ item['host-name'] : item['config-status'] }) }}"
     with_items: "{{ lc_entry }}"
     when: (lc_connected_result.stdout | from_json)['response']['result']['log-collector'] is defined and lc_entry['@name'] is not defined
   - set_fact:
-      lc_connected_list: "{{ lc_connected_list }} + ['{{ item['host-name'] }}']"
+      lc_connected_list: "{{ lc_connected_list + [item['host-name']] }}"
       lc_config_sync_dict: "{{ lc_config_sync_dict | combine({ lc_entry['host-name'] : lc_entry['config-status'] }) }}"
     when: (lc_connected_result.stdout | from_json)['response']['result']['log-collector'] is defined and lc_entry['@name'] is defined
   - set_fact:
@@ -118,5 +118,5 @@
 
 - name: SAVE BASELINE FACTS TO FILE
   template:
-    src: templates/baseline_panorama_facts.j2
-    dest: "{{ inventory_hostname }}.json"
+    src: baseline_panorama_facts.j2
+    dest: "{{ baseline_file }}"
