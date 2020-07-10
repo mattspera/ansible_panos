@@ -30,7 +30,7 @@ Dependencies
 The following Ansible Collections (Ansible 2.9+) are required to be installed as a prerequisite to using this Role:
 
 - paloaltonetworks.panos (https://galaxy.ansible.com/paloaltonetworks/panos)
-- mattlab.panos (https://github.com/mattspera/ansible_panos)
+- mattspera.panos (https://github.com/mattspera/ansible_panos)
 
 Example Playbooks
 ----------------

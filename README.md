@@ -1,4 +1,4 @@
-# Ansible Collection - mattlab.panos
+# Ansible Collection - mattspera.panos
 
 An Ansible Collection containing custom Plugins, Modules and Roles that facilitate the automation of tasks pertaining to the management of Palo Alto Networks devices.
 
@@ -13,7 +13,7 @@ Now, **build** and **install** the Collection using Ansible Galaxy (requires Ans
 ```
 cd ansible_panos
 ansible-galaxy collection build
-ansible-galaxy collection install mattlab-panos-1.0.0.tar.gz
+ansible-galaxy collection install mattspera-panos-1.0.0.tar.gz
 ```
 
 ## Plugins

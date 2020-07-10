@@ -1,6 +1,6 @@
 - name: GET RUNNING CONFIGURATION
   block:
-  - mattlab.panos.panos_config_set:
+  - mattspera.panos.panos_config_set:
       ip_address: '{{ inventory_hostname }}'
       username: '{{ pan_user }}'
       password: '{{ pan_pass }}'
