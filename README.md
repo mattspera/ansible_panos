@@ -1,6 +1,6 @@
 # Ansible Collection - mattlab.panos
 
-An Ansible Collection containing custom Plugins, Modules and Roles which automate tasks pertaining to the management of Palo Alto Networks devices.
+An Ansible Collection containing custom Plugins, Modules and Roles that facilitate the automation of tasks pertaining to the management of Palo Alto Networks devices.
 
 ## Installation
 
