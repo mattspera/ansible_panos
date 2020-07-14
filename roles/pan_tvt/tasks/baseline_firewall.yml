@@ -43,13 +43,11 @@
       cmd: show interface hardware
     register: int_hw_result
   - set_fact:
-      interfaces_up_list: []
+      bl_interfaces_up_list: []
   - set_fact:
-      interfaces_up_list: "{{ interfaces_up_list }} + ['{{ item['name'] }}']"
+      bl_interfaces_up_list: "{{ bl_interfaces_up_list + [item['name']] }}"
     when: item['state'] == 'up'
     with_items: "{{ (int_hw_result.stdout | from_json)['response']['result']['hw']['entry'] }}"
-  - set_fact:
-      bl_interfaces_up_list: "{{ interfaces_up_list }}"
 
 - name: GET ROUTE TABLE
   block:
